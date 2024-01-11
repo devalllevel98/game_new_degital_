@@ -37,6 +37,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   shared_preferences: ^2.2.2
   conditional_builder_null_safety: ^0.0.6
+  action_slider: ^0.7.0
+  animated_background: ^2.0.0
+  url_launcher: ^6.2.3
+  font_awesome_flutter: ^10.6.0
 
 
 
@@ -76,7 +80,8 @@ flutter:
         - asset: fonts/Dekko-Regular.ttf
 
   assets:
-    - assets/logo_leading.png
+    - assets/
+    
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

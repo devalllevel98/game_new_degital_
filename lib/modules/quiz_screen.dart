@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:animated_background/animated_background.dart';
+import 'package:degitalgame/gui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../calculations/quiz_maker.dart';
@@ -17,7 +20,7 @@ class QuizScreen extends StatefulWidget {
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
-class _QuizScreenState extends State<QuizScreen> {
+class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
   late Timer _timer;
   late int _timerSeconds =
       Shared.ndigits * Shared.scoremultiDI * Shared.scoremultiOP * 5;
@@ -109,10 +112,25 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+      getSavedValueFromSharedPreferences('userScore');
     return Scaffold(
-      backgroundColor: Styles.main,
-      appBar: buildAppBar(context),
-      body: Center(
+      backgroundColor: Colors.transparent,
+      // appBar: buildAppBar(context),
+      body: AnimatedBackground(
+        behaviour: RandomParticleBehaviour(
+          options: const ParticleOptions(
+            spawnMaxRadius: 50,
+            spawnMinSpeed: 10.00,
+            particleCount: 68,
+            spawnMaxSpeed: 50,
+            minOpacity: 0.3,
+            spawnOpacity: 0.4,
+            // baseColor: Colors.blue,
+            image: Image(image: AssetImage('assets/logoani.png')),
+          ),
+        ),
+        vsync: this,
+        child:Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +139,7 @@ class _QuizScreenState extends State<QuizScreen> {
               Column(
                 children: [
                   const Text(
-                    'SOLVE',
+                    'Question ?',
                     style: TextStyle(
                       fontFamily: 'impact',
                       color: Styles.whiteColor,
@@ -129,29 +147,13 @@ class _QuizScreenState extends State<QuizScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        CupertinoIcons.timer,
-                        color: Styles.pinkColor,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        '$_timerSeconds s',
-                        style: const TextStyle(
-                            fontSize: 15, color: Styles.pinkColor),
-                      ),
-                    ],
-                  ),
+
                   const SizedBox(height: 10),
                   Container(
                     height: 100,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30.0),
-                      color: Styles.lightColor,
+                      color: Colors.transparent,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -161,10 +163,10 @@ class _QuizScreenState extends State<QuizScreen> {
                           child: Text(
                             problem,
                             style: const TextStyle(
-                              fontFamily: 'Dekko',
-                              color: Styles.whiteColor,
+                              // fontFamily: 'Dekko',
+                              color: Color.fromARGB(255, 255, 255, 255),
                               fontSize: 35,
-                              fontWeight: FontWeight.bold,
+                              fontFamily: "impact"
                             ),
                           ),
                         ),
@@ -181,7 +183,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30.0),
-                      color: Styles.lightColor,
+                      color: Colors.transparent,
                     ),
                     child: Center(
                       child: TextFormField(
@@ -208,9 +210,9 @@ class _QuizScreenState extends State<QuizScreen> {
                                   color: CupertinoColors.activeGreen,
                                 )),
                             alignLabelWithHint: true,
-                            hintText: 'Enter your answer',
+                            hintText: 'Your answer ?',
                             hintStyle: TextStyle(
-                              color: Styles.blueColor.withOpacity(0.5),
+                              color: Color.fromARGB(255, 179, 233, 147).withOpacity(0.5),
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                             ),
@@ -241,64 +243,186 @@ class _QuizScreenState extends State<QuizScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
-              SmallCustomButton(
-                color: Styles.blueColor,
-                buttonText: 'CHECK',
-                onTap: () {
-                  checkAnswer();
-                  if (isAnswerCorrect) {
-                    setState(() {
-                      _timer.cancel();
-                      Shared.score +=
-                          10 * (Shared.scoremultiDI * Shared.scoremultiOP);
-                      saveVariableToSharedPreferences('userScore', Shared.score);
-                      getSavedValueFromSharedPreferences('userScore');
-                      // inputIndicate = Colors.green;
-                    });
-                  }
-                },
-              ),
-              if (!isAnswerCorrect) const SizedBox(height: 50),
-              if (isAnswerCorrect)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SmallCustomButton(
-                      buttonText: 'NEXT',
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                            return const QuizScreen();
-                          }),
-                        );
-                      },
-                    ),
-                    SmallCustomButton(
-                      buttonText: 'HOME',
-                      onTap: () {
-                        KeyboardUtils.hideKeyboard();
-                        saveVariableToSharedPreferences(
-                            'userScore', Shared.score);
-                        getSavedValueFromSharedPreferences('userScore');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                            return const OperationScreen();
-                          }),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    children: [
+                      Text("Time: ", style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: "impact"),),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Icon(
+                      //   CupertinoIcons.timer,
+                      //   color: Styles.pinkColor,
+                      //   size: 20,
+                      // ),
+                      const SizedBox(width: 10),
+                      Text('$_timerSeconds s', style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: "impact"),),
+
+                    ],
+                  ),
+                    ],
+                  ),
+                    ElevatedButton(
+                          child: const Text('Check', style: TextStyle(
+                          color:  Color.fromARGB(255, 244, 2, 2),
+                          fontSize: 20,
+                          fontFamily: 'impact'
+                          ),),
+                      onPressed: () {
+                        checkAnswer();
+                          if (isAnswerCorrect) {
+                            setState(() {
+                              _timer.cancel();
+                              Shared.score +=
+                                  10 * (Shared.scoremultiDI * Shared.scoremultiOP);
+                              saveVariableToSharedPreferences('userScore', Shared.score);
+                              getSavedValueFromSharedPreferences('userScore');
+                              // inputIndicate = Colors.green;
+                            });
+                          }
+                          },
+                      style: ElevatedButton.styleFrom(
+                          primary:Color.fromARGB(255, 255, 255, 255),
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                      ),
                 ),
-              const SizedBox(height: 20),
+                  //// score
+                   Row(
+                    children: [
+                      Text("Score: ", style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: "impact"),),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Icon(
+                      //   CupertinoIcons.timer,
+                      //   color: Styles.pinkColor,
+                      //   size: 20,
+                      // ),
+                      const SizedBox(width: 10),
+                      Text('${Shared.score}', style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: "impact"),),
+
+                    ],
+                  ),
+                    ],
+                  ),
+              
+                ],
+              ),
+               SizedBox(height: 20,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                    isAnswerCorrect ? ElevatedButton(
+                          child: const Text('Next', style: TextStyle(
+                          color: Color.fromARGB(255, 244, 2, 2),
+                          fontSize: 20,
+                          fontFamily: 'impact'
+                          ),),
+                      onPressed: () {
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (BuildContext context) {
+                              return const QuizScreen();
+                            }),
+                          );
+                        
+                          },
+                      style: ElevatedButton.styleFrom(
+                          primary:Color.fromARGB(255, 255, 255, 255),
+                          padding: EdgeInsets.symmetric(horizontal: 55, vertical: 5),
+                      ),
+                ):ElevatedButton(
+                          child: const Text('Next', style: TextStyle(
+                          color: Color.fromARGB(255, 42, 39, 39),
+                          fontSize: 20,
+                          fontFamily: 'impact'
+                          ),),
+                      onPressed: () {
+                        print("sai");
+                          },
+                      style: ElevatedButton.styleFrom(
+                          primary:Color.fromARGB(255, 255, 255, 255),
+                          padding: EdgeInsets.symmetric(horizontal: 55, vertical: 5),
+                      ),
+                ),
+                  //// score
+                    ElevatedButton(
+                          child: const Text('Back Menu', style: TextStyle(
+                          color:  Color.fromARGB(255, 244, 2, 2),
+                          fontSize: 20,
+                          fontFamily: 'impact'
+                          ),),
+                      onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => OperationScreen()),
+                          );
+                          },
+                      style: ElevatedButton.styleFrom(
+                          primary:Color.fromARGB(255, 255, 255, 255),
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                      ),
+                ),
+
+                ],
+              ),
+              SizedBox(height: 20,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                     ElevatedButton(
+                          child: const Text('Guideline', style: TextStyle(
+                          color: Color.fromARGB(255, 244, 2, 2),
+                          fontSize: 20,
+                          fontFamily: 'impact'
+                          ),),
+                      onPressed: () {
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (BuildContext context) {
+                              return Guiline();
+                            }),
+                          );
+                        
+                          },
+                      style: ElevatedButton.styleFrom(
+                          primary:Color.fromARGB(255, 255, 255, 255),
+                          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 5),
+                      ),
+                ),
+                  //// score
+                    ElevatedButton(
+                          child: const Text('Quit App', style: TextStyle(
+                          color:  Color.fromARGB(255, 244, 2, 2),
+                          fontSize: 20,
+                          fontFamily: 'impact'
+                          ),),
+                      onPressed: () {
+                          exit(0);
+                          },
+                      style: ElevatedButton.styleFrom(
+                          primary:Color.fromARGB(255, 255, 255, 255),
+                          padding: EdgeInsets.symmetric(horizontal: 35, vertical: 5),
+                      ),
+                ),
+
+                ],
+              ),
 
             ],
           ),
         ),
       ),
+   
+
+      ),
+
+
     );
   }
 }
